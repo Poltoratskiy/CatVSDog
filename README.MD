@@ -1,93 +1,28 @@
-Написать консольную утилиту для многопоточного скачивания изображений, их последующей обработки и
-классификации. Обработка файлов заключается в изменении размера (требуемый размер 224x224) 
-и перекодировании в формат PNG. Классификация заключается в сохранении в соответствующую 
-изображению директорию (функция для классификации будет предоставлена)
+# Image Downloader and CatVSDog Classifier
+A simple program for downloading images from the Internet and following image classification.
 
-Другими словами:
-* на вход скрипту передаётся список изображений с котиками и собаками
-* изображения скачиваются параллельно
-* каждое изображение приводится к виду удовлетворяющему требованиям классификатора
-    * размер 224x224
-    * формат PNG
-* Изображения с котиками сохраняются в директорию с котиками
-* Изображения с собачками сохраняются в директорию с собачками
+## Before start
 
-## Требования
-
-* Файл со списком URL указывается параметром в командной строке (по одному URL в каждой строке).
-Если файл не существует, выводится сообщение об ошибке.
-* Количество потоков задаётся параметром в командной строке и имеет значение по умолчанию (один поток). 
-Если параметры будут зашиты в скрипт, то будут сняты баллы.
-* Файлы сохраняются под именами, соответсвующими их номеру строки в списке URL
-(`00000.jpeg`, `00001.jpeg` и т.д.). Допустимо перезаписывать файлы существующие в каталоге на момент
-запуска без предупреждения. Конкатенация путей должна быть платформо-независимой (на Windows и Linux
-разделителями в путях файлов служат разные слеши)
-* Невалидные URL, ошибки скачивания файлов и файлы нечитаемых форматов должны корректно обрабатываться
-(сами файлы игнорировать, только увеличивать счетчик ошибок).
-* В ходе работы в стандартный вывод выводятся сообщения о завершении обработки каждого файла. 
-После завершения в стандартный вывод выводится статистика - количество скачанных файлов, количество скачанных байт,
-количество запросов завершившихся с ошибкой, процент котиков, процент собачек, общее время выполнения.
-* Должен присутствовать файл `requirements.txt` со списком зависимостей для установки их через `pip`
-* Unit-тесты в этом задании писать нужно только на фукнции преобразования (не покрываем тестами функции 
-скачивания или работу с классификатором)
-* Если не удаётся применить классификатор, допускается сохранение файлов равномерно 
-в несколько директорий, будут сняты баллы (количество директорий передаётся 
-параметром в командной строке и имеет значение по умолчанию) 
-
-Пример использования:
-скачать и классифицировать все файлы из списка `urllist.txt` в 4 потока.
-
-```bash
-python catsVSdogs.py urllist.txt --threads=4 
+All packages needed are presented in file: [requirements.txt](requirements.txt)
+```Bash
+pip3 install -r requirements.txt
 ```
-
-> NB!
-> Баллы можно получить только за полностью работающий пайплайн. Если пайплайн РАБОТАЕТ, но не правильно 
->(например, не поддерживается многопоточность) будет оценена выполненная часть работы. Если написан код, 
->но пайплайн не работает (по каким-то причинам) - работа будет оценена в 0 балов.
- 
-
-## Подсказки
-1. Для парсинга аргументов командной строки можно использовать модуль `argparse` из стандартной
-библиотеки https://docs.python.org/3/library/argparse.html.
-2. Для скачивания файлов можно использовать встроенную библиотеку `urllib`
-https://docs.python.org/3/library/urllib.html
-3. Для обработки изображений можно использовать стороннюю библиотеку `Pillow`
-https://pillow.readthedocs.io/en/5.1.x/
-4. Для управления потоками можно использовать `ThreadPool` из стандартной библиотеки,
-для передачи данных между потоками - `Queue`. Не забывайте про потокобезопасность.
-5. Код для загрузки классификатора и классифицирующая функция
-```python
-from tensorflow import keras
-import tensorflow as tf
-from tensorflow.keras.preprocessing.image import img_to_array
-from PIL import Image
-import numpy as np
-
-def load_tf_model(path: str) -> keras.Model:
-    """
-    Load serialized keras model from the directory `path`
-
-    :param path: directory with serialized keras model
-    :return: serialized keras model
-    """
-    print(f"Loading keras model from {path}")
-    return keras.models.load_model(path)
-
-
-def is_cat(model: keras.Model, img: Image) -> bool:
-    """
-    Returns True if Cat on the picture, Dog otherwise
-
-    :param model: Loaded model for CatVSDog classification
-    :param img: PIL PNG image with size 224x224
-        example:
-        >>> print(img)
-        <PIL.PngImagePlugin.PngImageFile image mode=RGB size=224x224 at ...>
-    :return:
-    """
-    img_array = tf.cast(img_to_array(img), tf.float32) / 255.0
-    img_expended = np.expand_dims(img_array, axis=0)
-    return model.predict(img_expended)[0][0] < 0.5
+or
+```Bash
+sudo pip3 install -r requirements.txt
 ```
+Also you need CUDA 10 for correct program execution.
 
+## How to execute
+
+```Bash
+python3 cat_vs_dog.py urllist.txt -t 4
+```
+where urllist.txt is the file with URL links (one link per line). --threads or -t is an optional parameter to set
+number of threads to run program in parallel (by default 1).
+
+## Result
+
+Two directories with classified images: 
+- cats - directory with cat images
+- dogs - directory with dogs

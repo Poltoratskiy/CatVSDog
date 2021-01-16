@@ -6,7 +6,7 @@ from PIL import Image
 from model_func import standardize_img
 
 
-# img.standardize_img tests
+# model_func.standardize_img tests
 @pytest.fixture
 def test_img_list():
     test_dir = os.path.join(os.path.dirname(__file__), "test_images")
