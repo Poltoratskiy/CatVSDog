@@ -48,5 +48,16 @@ def is_cat(model: keras.Model, img: Image) -> bool:
 
 
 def classify(model: keras.Model, img: Image):
+    """
+    A function that prepares an image for classification and
+    runs classifier.
+    :param model: Model for image classification.
+    :param img: Original image
+    :return: altered image and classification result.
+    """
     img = standardize_img(img)
-    return img, is_cat(model, img)
+    if is_cat(model, img):
+        animal = "cat"
+    else:
+        animal = "dog"
+    return img, animal
